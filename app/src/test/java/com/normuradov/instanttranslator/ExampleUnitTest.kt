@@ -1,4 +1,4 @@
-package com.example.instanttranslator
+package com.normuradov.instanttranslator
 
 import org.junit.Test
 
