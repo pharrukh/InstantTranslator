@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">InstantTranslator</string>
+    <string name="hello_world">Hi to everyone!</string>
 </resources>
