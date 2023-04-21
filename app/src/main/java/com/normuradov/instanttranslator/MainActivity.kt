@@ -26,13 +26,22 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.normuradov.instanttranslator.ui.theme.InstantTranslatorTheme
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardType
+import java.text.NumberFormat
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             InstantTranslatorTheme {
-                DiceRollerApp()
+                Surface() {
+                    TipTimeScreen()
+                }
             }
         }
     }
@@ -40,39 +49,63 @@ class MainActivity : ComponentActivity() {
 
 @Preview
 @Composable
-fun DiceRollerApp() {
-    DiceWithButtonAndImage(modifier = Modifier
-        .fillMaxSize()
-        .wrapContentSize(Alignment.Center)
-    )
+fun TipTimeScreen() {
+
+    var amountInput by remember { mutableStateOf("") }
+    val amount = amountInput.toDoubleOrNull() ?: 0.0
+    val tip = calculateTip(amount)
+
+    Column(
+        modifier = Modifier.padding(32.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.calculate_tip),
+            fontSize = 24.sp,
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        )
+        Spacer(Modifier.height(16.dp))
+        EditNumberField(value = amountInput, onValueChange = {amountInput = it})
+        Spacer(Modifier.height(24.dp))
+        Text(
+            text = stringResource(R.string.tip_amount, tip),
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold
+        )
+    }
+
 }
 
 @Composable
-fun DiceWithButtonAndImage(modifier: Modifier = Modifier) {
-    var result by remember { mutableStateOf(1)}
+fun EditNumberField(
+    value: String,
+    onValueChange: (String) -> Unit)
+{
+    TextField(
+        label = { Text(stringResource(R.string.cost_of_service)) },
+        value = value,
+        onValueChange = onValueChange,
+        modifier = Modifier.fillMaxWidth(),
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+    )
+}
 
-    val imageResource = when (result) {
-        1 -> R.drawable.dice_1
-        2 -> R.drawable.dice_2
-        3 -> R.drawable.dice_3
-        4 -> R.drawable.dice_4
-        5 -> R.drawable.dice_5
-        else -> R.drawable.dice_6
-    }
-
-    Column (
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Image(
-            painter = painterResource(id = imageResource),
-            contentDescription = result.toString()
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = { result = (1..6).random() }) {
-            Text(stringResource(R.string.roll), fontSize = 24.sp)
-        }
-    }
+fun calculateTip(
+    amount: Double,
+    tipPercent: Double = 15.0
+): String {
+    val tip = amount * tipPercent / 100
+    return NumberFormat.getCurrencyInstance().format(tip)
 }
 
 
+
+@Preview(showBackground = true)
+@Composable
+fun DefaultPreview() {
+    InstantTranslatorTheme {
+        TipTimeScreen()
+    }
+}
